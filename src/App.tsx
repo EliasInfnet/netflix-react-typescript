@@ -4,19 +4,20 @@ import { ThemeProvider } from 'styled-components';
 import { Login } from './screens/login/login.screen';
 import { loginPath } from './screens/login/login.types';
 import { GlobalStyle } from './themes/main/global-style';
+import { Provider } from 'react-redux';
 import theme from './themes/main/theme';
+import store from './store/store/store';
 
 function App() {
   return (
-    <div className="App">
+    <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <GlobalStyle/>
+        <GlobalStyle />
         <Routes>
           <Route path={loginPath} element={<Login />} />
         </Routes>
       </ThemeProvider>
-
-    </div>
+    </Provider>
   );
 }
 
