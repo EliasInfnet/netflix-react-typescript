@@ -1,8 +1,8 @@
-import {Action} from '../store/store.types'
+import { Action } from '../store/store.types'
 
 export type User = {
   email: string
-    password: string
+  password: string
 }
 
 export type UserState = {
