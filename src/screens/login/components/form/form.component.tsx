@@ -1,19 +1,19 @@
-import React, { useState, useCallback, useEffect } from "react"
-import InputText from "../../../../components/inputs/input-text/input-text.components"
-import Button from "../../../../components/buttons/button/button.component"
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import InputText from "../../../../components/inputs/input-text/input-text.component";
+import Button from "../../../../components/buttons/button/button.component";
 import * as yup from 'yup'
-import { ErrorMessages } from "./form.types"
-import { ErrorDescription } from "./form.styled"
+import { ErrorMessage } from "./form.types";
+import { ErrorDescription } from "./form.styled";
 import { userActions } from "../../../../store/user/user.slice";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom"
-import { isAuthenticated } from "../../../../store/user/user.selectors"
-import { HomePath } from "../../../home/home.types"
+import { isAuthenticated, isLoading } from "../../../../store/user/user.selectors";
+import { useLocation, useNavigate } from "react-router-dom";
+import { HomePath } from "../../../home/home.types";
 
 const errorInitial = ''
 
 export default function Form() {
-
+  
   const [data, setData] = useState({ email: '', password: '' })
   const [error, setError] = useState(errorInitial)
 
@@ -21,6 +21,7 @@ export default function Form() {
   const navigate = useNavigate()
   const location = useLocation()
   const isUserAuthenticated = useSelector(isAuthenticated)
+  const isUserLoading = useSelector(isLoading)
 
   useEffect(
     () => {
@@ -28,18 +29,24 @@ export default function Form() {
         const to = location.state?.from?.pathname || HomePath
         navigate(to)
       }
-    }, [isUserAuthenticated]
+    },
+    [isUserAuthenticated]
+  )
+
+  const buttonDescription = useMemo(
+    () => isUserLoading ? 'Carregando...' : 'Entrar',
+    [isUserLoading]
   )
 
   const resetError = useCallback(
     () => setError(errorInitial),
-    [],
+    []
   )
 
   const handleChange = useCallback(
     (event: any) => setData(prevState => ({
       ...prevState,
-      [event.target.name]: event.target.value
+      [event.target.name]: event.target.value,
     })),
     [setData]
   )
@@ -47,14 +54,13 @@ export default function Form() {
   const validation = useCallback(
     async () => {
       const schema = yup.object().shape({
-        email: yup.string().required(ErrorMessages.Required).email(ErrorMessages.EmailBadFormat),
-        password: yup.string().required(ErrorMessages.Required),
+        email: yup.string().required(ErrorMessage.Required).email(ErrorMessage.EmailBadFormat),
+        password: yup.string().required(ErrorMessage.Required),
       })
 
       try {
         await schema.validate(data)
         resetError()
-        console.log(true)
 
         return true
       } catch (error) {
@@ -64,7 +70,8 @@ export default function Form() {
         return false
       }
 
-    }, [data]
+    },
+    [data, setError]
   )
 
   const onSubmit = useCallback(
@@ -76,14 +83,12 @@ export default function Form() {
     [validation, data]
   )
 
-
-
   return (
     <>
-      <InputText type={'text'} name={'email'} placeholder={"E-mail"} onChange={handleChange} />
-      <InputText type={'password'} name={'password'} placeholder={"Senha"} onChange={handleChange} />
+      <InputText type='text' placeholder={'E-mail'} name={'email'} onChange={handleChange} />
+      <InputText type={'password'} placeholder={'Senha'} name={'password'} onChange={handleChange} />
       <ErrorDescription>{error}</ErrorDescription>
-      <Button primary onClick={onSubmit}>Entrar</Button>
+      <Button primary onClick={onSubmit}>{buttonDescription}</Button>
     </>
   )
 }

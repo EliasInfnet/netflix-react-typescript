@@ -15,7 +15,6 @@ export function Login() {
               <Form/>
             </Grid>
           </Grid>
-
         </Wrapper>
       </Container>
     </>
